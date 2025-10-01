@@ -3,13 +3,11 @@ version: "3.9"
 services:
   redis:
     image: redis:7
-    container_name: traductor-es-pt-br_redis_1
     ports:
       - "6379:6379"
 
   minio:
     image: minio/minio
-    container_name: traductor-es-pt-br_minio_1
     environment:
       MINIO_ROOT_USER: minio
       MINIO_ROOT_PASSWORD: minio123
@@ -19,27 +17,25 @@ services:
 
   api:
     build:
-      context: .
-      dockerfile: app/Dockerfile
-    container_name: traductor-es-pt-br_api_1
+      context: .           # usa la raíz (donde está tu Dockerfile)
+      dockerfile: Dockerfile
     volumes:
-      - ./app:/app
+      - ./data:/data
     ports:
       - "8000:8000"
     depends_on:
       - redis
-      - worker
       - minio
     environment:
       - CELERY_BROKER=redis://redis:6379/0
+    command: ["uvicorn", "app.api:app", "--host", "0.0.0.0", "--port", "8000"]
 
   worker:
     build:
       context: .
-      dockerfile: app/Dockerfile
-    container_name: traductor-es-pt-br_worker_1
+      dockerfile: Dockerfile
     command: ["python", "-m", "celery", "-A", "app.worker_task", "worker", "--loglevel=info"]
     volumes:
-      - ./app:/app
+      - ./data:/data
     depends_on:
       - redis
