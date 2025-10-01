@@ -30,7 +30,7 @@ services:
 
   worker:
     build: .
-    command: ["python", "-m", "celery", "-A", "app/worker_task", "worker", "--loglevel=info"]
+    command: ["python", "-m", "celery", "-A", "app.worker_task", "worker", "--loglevel=info"]
     volumes:
       - ./data:/data
     depends_on:
