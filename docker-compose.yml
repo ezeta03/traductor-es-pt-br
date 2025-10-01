@@ -14,31 +14,36 @@ services:
     command: server /data
     ports:
       - "9000:9000"
+    volumes:
+      - minio_data:/data
 
   api:
     build:
       context: .
       dockerfile: Dockerfile
-    volumes:
-      - ./data:/data
     ports:
       - "8000:8000"
     depends_on:
       - redis
       - minio
     environment:
-      - CELERY_BROKER=redis://redis:6379/0
-      - PYTHONPATH=/app
+      UPLOAD_DIR: /data/uploads
+      OUT_DIR: /data/out
+    volumes:
+      - ./data/uploads:/data/uploads
+      - ./data/out:/data/out
     command: ["uvicorn", "app.api:app", "--host", "0.0.0.0", "--port", "8000"]
 
   worker:
     build:
       context: .
       dockerfile: Dockerfile
-    command: ["python", "-m", "celery", "-A", "app.worker_task", "worker", "--loglevel=info"]
-    volumes:
-      - ./data:/data
     depends_on:
       - redis
-    environment:
-      - PYTHONPATH=/app
+    volumes:
+      - ./data/uploads:/data/uploads
+      - ./data/out:/data/out
+    command: ["celery", "-A", "app.worker_task", "worker", "--loglevel=info"]
+
+volumes:
+  minio_data:

@@ -2,4 +2,4 @@ fastapi
 uvicorn[standard]
 celery
 redis
-minio
+python-docx
