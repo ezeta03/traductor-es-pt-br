@@ -4,5 +4,5 @@ services:
     build: .
     container_name: traductor-es-ptbr
     ports:
-      - "5000:5000"
+      - 85000:8000"
     restart: always
