@@ -2,7 +2,7 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.responses import FileResponse
 import shutil, os
 from uuid import uuid4
-from worker_task import translate_file_task
+from app.worker_task import translate_file_task
 
 app = FastAPI()
 UPLOAD_DIR = os.environ.get("UPLOAD_DIR", "/data/uploads")
