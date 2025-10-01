@@ -1,2 +1,16 @@
 Flask==2.3.2
 deep-translator==1.11.4
+fastapi
+uvicorn
+celery[redis]
+redis
+python-docx
+PyMuPDF
+transformers
+sentencepiece
+torch
+boto3
+minio
+python-multipart
+requests
+
