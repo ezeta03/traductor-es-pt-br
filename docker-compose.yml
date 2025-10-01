@@ -16,22 +16,25 @@ services:
       - "9000:9000"
 
   api:
-    build:
-      context: . # usa la raíz (donde está tu Dockerfile)
-      dockerfile: Dockerfile
-    volumes:
-      - ./data:/data
-    ports:
-      - "8000:8000"
-    depends_on:
-      - redis
-      - minio
-    environment:
-      - CELERY_BROKER=redis://redis:6379/0
-    command: ["uvicorn", "app.api:app", "--host", "0.0.0.0", "--port", "8000"]
+  build:
+    context: .
+    dockerfile: Dockerfile
+  volumes:
+    - ./data:/data
+  ports:
+    - "8000:8000"
+  depends_on:
+    - redis
+    - minio
+  environment:
+    - CELERY_BROKER=redis://redis:6379/0
+    - PYTHONPATH=/app
+  command: ["uvicorn", "app.api:app", "--host", "0.0.0.0", "--port", "8000"]
 
-  worker:
-  build: .
+worker:
+  build:
+    context: .
+    dockerfile: Dockerfile
   command:
     [
       "python",
@@ -47,4 +50,4 @@ services:
   depends_on:
     - redis
   environment:
-    - PYTHONPATH=/app
+    - PYT
