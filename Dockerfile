@@ -2,18 +2,16 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-# instalar dependencias básicas
-RUN apt-get update && apt-get install -y build-essential gcc && rm -rf /var/lib/apt/lists/*
+# Copiamos los requirements
+COPY app/requirements.txt .
 
-# copiar requirements e instalar
-COPY requirements.txt .
-RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
-# copiar el código
-COPY . .
+# Copiamos toda la carpeta app al contenedor
+COPY app/ .
 
-ENV PYTHONUNBUFFERED=1
+# Exponemos el puerto de uvicorn
+EXPOSE 8000
 
-# uvicorn por defecto
+# Arrancamos la API
 CMD ["uvicorn", "app.api:app", "--host", "0.0.0.0", "--port", "8000"]
