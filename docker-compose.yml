@@ -17,7 +17,7 @@ services:
 
   api:
     build:
-      context: .           # usa la raíz (donde está tu Dockerfile)
+      context: . # usa la raíz (donde está tu Dockerfile)
       dockerfile: Dockerfile
     volumes:
       - ./data:/data
@@ -31,11 +31,20 @@ services:
     command: ["uvicorn", "app.api:app", "--host", "0.0.0.0", "--port", "8000"]
 
   worker:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command: ["python", "-m", "celery", "-A", "app.worker_task", "worker", "--loglevel=info"]
-    volumes:
-      - ./data:/data
-    depends_on:
-      - redis
+  build: .
+  command:
+    [
+      "python",
+      "-m",
+      "celery",
+      "-A",
+      "app.worker_task",
+      "worker",
+      "--loglevel=info",
+    ]
+  volumes:
+    - ./data:/data
+  depends_on:
+    - redis
+  environment:
+    - PYTHONPATH=/app
