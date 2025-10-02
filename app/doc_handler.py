@@ -17,8 +17,9 @@ def translate_docx(input_path: str, output_path: str, translator_func):
     def translate_paragraphs(paragraphs):
         for para in paragraphs:
             for run in para.runs:
-                if run.text.strip():
-                    run.text = translator_func(run.text)
+                text = run.text.strip()
+                if text:
+                    run.text = translator_func(text)
 
     def translate_tables(tables):
         for table in tables:
