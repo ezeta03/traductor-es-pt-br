@@ -5,6 +5,7 @@ services:
     image: redis:7
     ports:
       - "6379:6379"
+    restart: always
 
   minio:
     image: minio/minio
@@ -13,15 +14,17 @@ services:
       MINIO_ROOT_PASSWORD: minio123
     command: server /data --console-address ":9001"
     ports:
-      - "9000:9000"   # API
-      - "9001:9001"   # WebUI
+      - "9000:9000"
+      - "9001:9001"
     volumes:
       - minio_data:/data
+    restart: always
 
   api:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: traductor-es-pt-br_api
     ports:
       - "8000:8000"
     depends_on:
@@ -34,17 +37,20 @@ services:
       - ./data/uploads:/data/uploads
       - ./data/out:/data/out
     command: ["uvicorn", "app.api:app", "--host", "0.0.0.0", "--port", "8000"]
+    restart: always
 
   worker:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: traductor-es-pt-br_worker
     depends_on:
       - redis
     volumes:
       - ./data/uploads:/data/uploads
       - ./data/out:/data/out
     command: ["celery", "-A", "app.worker_task", "worker", "--loglevel=info"]
+    restart: always
 
 volumes:
   minio_data:
