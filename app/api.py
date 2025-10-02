@@ -4,7 +4,7 @@ import os
 from uuid import uuid4
 from app.worker_task import translate_file_task
 from pydantic import BaseModel
-from translation_service import translate_text
+from translator_service import translate_text
 
 app = FastAPI()
 

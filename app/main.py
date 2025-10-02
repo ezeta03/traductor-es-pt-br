@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from translation_service import translate_text
+from translator_service import translate_text
 
 app = Flask(__name__)
 
