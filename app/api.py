@@ -8,14 +8,14 @@ from app.translator_service import translate_text
 
 app = FastAPI()
 
-# Modelo para recibir JSON con el texto
+# Modelo para request body
 class TextRequest(BaseModel):
     text: str
 
 @app.post("/translate_text")
-async def translate_text_endpoint(request: TextRequest):
-    translated = translate_text(request.text)
-    return {"original": request.text, "translated": translated}
+def translate_text_endpoint(req: TextRequest):
+    translated = translate_text(req.text)
+    return {"original": req.text, "translated": translated}
 
 
 UPLOAD_DIR = os.environ.get("UPLOAD_DIR", "/data/uploads")
