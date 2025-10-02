@@ -1,7 +1,7 @@
-from googletrans import Translator
 from celery import Celery
 from docx import Document
 import os
+from app.translator_service import translate_text
 
 celery = Celery(
     "worker_task",
@@ -9,17 +9,16 @@ celery = Celery(
     backend="redis://redis:6379/0"
 )
 
-translator = Translator()
+# translator = Translator()
 
 @celery.task
-def translate_text(text: str) -> str:
+def translate_text_task(text: str, source: str, target: str) -> str:
     if not text.strip():
         return ""
-    result = translator.translate(text, src="es", dest="en")
-    return result.text
+    return translate_text(text, source, target)   # 👈 llamamos al servicio dinámico
 
 @celery.task
-def translate_file_task(input_path: str, output_path: str):
+def translate_file_task(input_path: str, output_path: str, source: str, target: str):
     if not os.path.exists(input_path):
         return {"status": "error", "error": "Archivo no existe"}
 
@@ -29,7 +28,7 @@ def translate_file_task(input_path: str, output_path: str):
     for para in doc.paragraphs:
         text = para.text
         if text.strip():
-            translated_text = translate_text.delay(text).get(timeout=10)  # espera la traducción
+            translated_text = translate_text_task.delay(text, source, target).get(timeout=10)
         else:
             translated_text = ""
 
