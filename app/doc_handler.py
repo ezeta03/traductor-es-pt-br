@@ -13,11 +13,27 @@ def extract_text_from_docx(path: str):
 
 def translate_docx(input_path: str, output_path: str, translator_func):
     doc = Document(input_path)
-    for para in doc.paragraphs:
-        for run in para.runs:
-            if run.text.strip():
-                translated = translator_func(run.text)
-                run.text = translated
+
+    def translate_paragraphs(paragraphs):
+        for para in paragraphs:
+            for run in para.runs:
+                if run.text.strip():
+                    run.text = translator_func(run.text)
+
+    def translate_tables(tables):
+        for table in tables:
+            for row in table.rows:
+                for cell in row.cells:
+                    # Traducir párrafos de la celda
+                    translate_paragraphs(cell.paragraphs)
+                    # Traducir tablas anidadas
+                    if cell.tables:
+                        translate_tables(cell.tables)
+
+    # Traducir todo el documento
+    translate_paragraphs(doc.paragraphs)
+    translate_tables(doc.tables)
+
     doc.save(output_path)
 
 def extract_text_from_pdf(path: str) -> str:
