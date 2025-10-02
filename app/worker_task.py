@@ -27,16 +27,24 @@ def translate_file_task(input_path: str, output_path: str):
     translated_doc = Document()
 
     for para in doc.paragraphs:
-        text = para.text.strip()
-        translated_text = translate_text(text)
-        p = translated_doc.add_paragraph()
-        run = p.add_run(translated_text)
-        for r_src, r_dest in zip(para.runs, p.runs):
-            r_dest.bold = r_src.bold
-            r_dest.italic = r_src.italic
-            r_dest.underline = r_src.underline
-            r_dest.font.name = r_src.font.name
-            r_dest.font.size = r_src.font.size
+        text = para.text
+        if text.strip():
+            translated_text = translate_text.delay(text).get(timeout=10)  # espera la traducción
+        else:
+            translated_text = ""
+
+        p_new = translated_doc.add_paragraph(translated_text)
+
+        # Copiar estilos
+        if para.runs:
+            for run_src, run_dest in zip(para.runs, p_new.runs):
+                run_dest.bold = run_src.bold
+                run_dest.italic = run_src.italic
+                run_dest.underline = run_src.underline
+                if run_src.font.name:
+                    run_dest.font.name = run_src.font.name
+                if run_src.font.size:
+                    run_dest.font.size = run_src.font.size
 
     translated_doc.save(output_path)
     return {"status": "ok"}
