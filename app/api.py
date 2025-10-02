@@ -3,8 +3,20 @@ from fastapi.responses import FileResponse
 import os
 from uuid import uuid4
 from app.worker_task import translate_file_task
+from pydantic import BaseModel
+from translator import translate_text
 
 app = FastAPI()
+
+# Modelo para recibir JSON con el texto
+class TextRequest(BaseModel):
+    text: str
+
+@app.post("/translate_text")
+async def translate_text_endpoint(request: TextRequest):
+    translated = translate_text(request.text)
+    return {"original": request.text, "translated": translated}
+
 
 UPLOAD_DIR = os.environ.get("UPLOAD_DIR", "/data/uploads")
 OUT_DIR = os.environ.get("OUT_DIR", "/data/out")
