@@ -2,9 +2,9 @@ from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.responses import FileResponse
 import os
 from uuid import uuid4
-from app.worker_task import translate_file_task
 from pydantic import BaseModel
 from app.translator_service import translate_text
+from app.worker_task import translate_file_task   # Importamos la función
 
 app = FastAPI()
 
@@ -45,20 +45,14 @@ async def translate_docx_endpoint(
     with open(infile, "wb") as f:
         f.write(await file.read())
 
-    # Llamar a Celery task
-    task = translate_file_task.delay(infile, outname, source, target)
+    # ⚡ Ejecutar traducción de forma directa (bloqueante, no con Celery)
+    result = translate_file_task(infile, outname, source, target)
 
-    return {"task_id": task.id, "status": "processing"}
-
-
-# ====== ENDPOINT PARA DESCARGAR ======
-@app.get("/download/{filename}")
-async def download_file(filename: str):
-    file_path = os.path.join(OUT_DIR, filename)
-    if os.path.exists(file_path):
+    if result.get("status") == "ok":
         return FileResponse(
-            path=file_path,
+            path=outname,
             media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-            filename=filename
+            filename=f"{os.path.splitext(file.filename)[0]}_translated.docx"
         )
-    return {"status": "error", "error": "Archivo no encontrado"}
+    else:
+        return {"status": "error", "error": result.get("error")}
