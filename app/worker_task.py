@@ -15,7 +15,7 @@ translator = Translator()
 def translate_text(text: str) -> str:
     if not text.strip():
         return ""
-    result = translator.translate(text, src="es", dest="pt")
+    result = translator.translate(text, src="es", dest="en")
     return result.text
 
 @celery.task

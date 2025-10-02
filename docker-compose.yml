@@ -24,7 +24,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: traductor-es-pt-br_api
+    container_name: traductor-es-en-us_api
     ports:
       - "8000:8000"
     depends_on:
@@ -43,7 +43,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: traductor-es-pt-br_worker
+    container_name: traductor-es-en_worker
     depends_on:
       - redis
     volumes:
